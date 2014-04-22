@@ -22,11 +22,11 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="kcf-auto-summary" />
+        <module name="summaryParser" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="kcf-auto-summary" target="1.6" />
+      <module name="summaryParser" target="1.6" />
     </bytecodeTargetLevel>
   </component>
 </project>
