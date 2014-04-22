@@ -18,11 +18,11 @@ public class TestSummaryParser {
     @Test
     public void test() {
         String summary = SummaryParser.parse(text);
-
         System.out.println(summary);
 
+        summary = SummaryParser.parse(text, 50);
+        System.out.println(summary);
 
         assert  summary != null;
     }
-
 }

@@ -1,9 +1,19 @@
 package com.kcf.parse;
 
 import com.kcf.entity.Term;
+import love.cq.util.IOUtil;
 import org.ansj.splitWord.analysis.ToAnalysis;
+import org.ansj.util.FilterModifWord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sun.misc.IOUtils;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 /**
@@ -13,6 +23,9 @@ import java.util.regex.Pattern;
  * key word parser class
  */
 public class WordParser {
+    private static final Logger logger = LoggerFactory.getLogger(WordParser.class);
+
+    private static final AtomicBoolean isLoaded = new AtomicBoolean(false);
 
     /**
      * use ansj_seg, parse the given text
@@ -22,23 +35,27 @@ public class WordParser {
      *  word and the frequency
      */
     public static List<Term> parse(String text) {
+        if(!isLoaded.get()){
+            loadStopWord();
+            isLoaded.set(true);
+        }
+
         List<Term> terms = new ArrayList<Term>();
 
         List<org.ansj.domain.Term> ansjTerms = ToAnalysis.parse(text);
+        ansjTerms = FilterModifWord.modifResult(ansjTerms);
 
         if(ansjTerms != null && !ansjTerms.isEmpty()) {
             for(org.ansj.domain.Term term : ansjTerms) {
                 String word = term.getName().trim();
-                if(!isStopWord(word)) {
-                    int frequency = countFrequency(term.getName(), text);
+                int frequency = countFrequency(term.getName(), text);
 
-                    Term myTerm = new Term();
-                    myTerm.setFrequency(frequency);
-                    myTerm.setWord(word);
+                Term myTerm = new Term();
+                myTerm.setFrequency(frequency);
+                myTerm.setWord(word);
 
-                    if (!terms.contains(myTerm)) {
-                        terms.add(myTerm);
-                    }
+                if (!terms.contains(myTerm)) {
+                    terms.add(myTerm);
                 }
             }
         }
@@ -73,9 +90,34 @@ public class WordParser {
         });
     }
 
-    //FIXME
-    private static boolean isStopWord(String word) {
-        Pattern p = Pattern.compile("[,|，|.|。]");
-        return p.matcher(word).matches();
+    private static void loadStopWord() {
+        BufferedReader reader = null;
+        try {
+            reader = IOUtil.getReader("library/stopWord.dic", "utf-8");
+            String line = null;
+            while( (line = reader.readLine()) != null ) {
+                if(!"".equals(line)) {
+
+                    logger.debug("stop word: " + line);
+
+                    FilterModifWord.insertStopWord(line);
+                }
+            }
+
+            logger.info("load stop word finished");
+
+        } catch (FileNotFoundException e) {
+            logger.error("file not find", e);
+        } catch (UnsupportedEncodingException e) {
+            logger.error("unsupported encode", e);
+        } catch (IOException e) {
+            logger.error("read content failed", e);
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                logger.error("close reader failed", e);
+            }
+        }
     }
 }
