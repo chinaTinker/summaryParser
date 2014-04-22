@@ -1,0 +1,6 @@
+target/**
+.idea/**
+*.class
+*war
+*.ear
+js_err_pid*
