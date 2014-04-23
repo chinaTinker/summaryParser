@@ -8,7 +8,7 @@ public class Term {
 
     private String word;
 
-    private int frequency;
+    private int score;
 
 
     public String getWord() {
@@ -19,26 +19,26 @@ public class Term {
         this.word = word;
     }
 
-    public int getFrequency() {
-        return frequency;
+    public int getScore() {
+        return score;
     }
 
-    public void setFrequency(int frequency) {
-        this.frequency = frequency;
+    public void setScore(int score) {
+        this.score = score;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("word: ").append(this.word);
-        sb.append(" | frequency: ").append(this.frequency);
+        sb.append(" | score: ").append(this.score);
 
         return sb.toString();
     }
 
     @Override
     public int hashCode() {
-        return this.word.hashCode() + this.frequency * 100000;
+        return this.word.hashCode() + this.score * 100000;
     }
 
     @Override

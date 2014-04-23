@@ -1,5 +1,6 @@
 package com.kcf.parse;
 
+import com.kcf.dictionary.*;
 import com.kcf.entity.Term;
 import love.cq.util.IOUtil;
 import org.ansj.splitWord.analysis.ToAnalysis;
@@ -49,9 +50,10 @@ public class WordParser {
             for(org.ansj.domain.Term term : ansjTerms) {
                 String word = term.getName().trim();
                 int frequency = countFrequency(term.getName(), text);
+                int kcfWeight = com.kcf.dictionary.Dictionary.getWeight(term);
 
                 Term myTerm = new Term();
-                myTerm.setFrequency(frequency);
+                myTerm.setScore(frequency + kcfWeight);     //yes his score comes from frequency and the kcf defined weight
                 myTerm.setWord(word);
 
                 if (!terms.contains(myTerm)) {
@@ -82,10 +84,11 @@ public class WordParser {
 
 
     private static void sort(List<Term> terms) {
-        Collections.sort(terms, new Comparator<Term>() {
+        Collections.sort(terms,
+                new Comparator<Term>() {
             @Override
             public int compare(Term o1, Term o2) {
-                return o2.getFrequency() - o1.getFrequency();
+                return o2.getScore() - o1.getScore();
             }
         });
     }
@@ -97,9 +100,6 @@ public class WordParser {
             String line = null;
             while( (line = reader.readLine()) != null ) {
                 if(!"".equals(line)) {
-
-                    logger.debug("stop word: " + line);
-
                     FilterModifWord.insertStopWord(line);
                 }
             }
